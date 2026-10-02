@@ -1,0 +1,38 @@
+name: ONPE WAF Token Synchronizer
+
+on:
+  schedule:
+    # Se ejecuta automáticamente cada 5 minutos (24/7 en la nube)
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Permite ejecución manual inmediata con un clic desde GitHub
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  sync-waf-token:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar Puppeteer Core
+        run: |
+          npm install puppeteer-core
+
+      - name: Sincronizar Token AWS WAF hacia cPanel
+        env:
+          ONPE_TARGET_URL: ${{ secrets.ONPE_TARGET_URL || 'https://bautista.edparallel.org.pe/api/onpe/sync-waf-token' }}
+          ONPE_SYNC_KEY: ${{ secrets.ONPE_SYNC_KEY || 'onpe_bridge_secret_key_2026' }}
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
+        run: |
+          node scripts/sync_onpe_waf.js
+
