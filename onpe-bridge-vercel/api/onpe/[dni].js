@@ -1,4 +1,4 @@
-import chromium from '@sparticuz/chromium';
+import chromium from '@sparticuz/chromium-min';
 import puppeteer from 'puppeteer-core';
 
 export const config = {
@@ -49,7 +49,9 @@ export default async function handler(req, res) {
 
   // 2. Consulta ONPE con Puppeteer en Vercel
   try {
-    const executablePath = await chromium.executablePath();
+    const executablePath = await chromium.executablePath(
+      'https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar'
+    );
 
     const browser = await puppeteer.launch({
       args: [
