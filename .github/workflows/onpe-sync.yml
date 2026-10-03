@@ -24,9 +24,9 @@ jobs:
         with:
           node-version: 20
 
-      - name: Instalar Puppeteer Core
+      - name: Instalar dependencias
         run: |
-          npm install puppeteer-core
+          npm install --no-audit --no-fund
 
       - name: Sincronizar Token AWS WAF hacia cPanel
         env:
@@ -35,4 +35,5 @@ jobs:
           PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
         run: |
           node scripts/sync_onpe_waf.js
+
 
