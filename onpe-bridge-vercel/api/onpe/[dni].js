@@ -135,15 +135,24 @@ export default async function handler(req, res) {
     console.error('Puppeteer error:', err);
   }
 
-  // 3. Fallback
+  // 3. Fallback de Identidad Garantizado (Reniec / APIs)
   try {
-    const fallbackResp = await fetch(`https://api.apis.net.pe/v1/dni?numero=${cleanDni}`);
+    let fallbackResp = await fetch(`https://api.apis.net.pe/v2/reniec/dni?numero=${cleanDni}`, {
+      headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0' }
+    });
+
+    if (!fallbackResp.ok) {
+      fallbackResp = await fetch(`https://api.apis.net.pe/v1/dni?numero=${cleanDni}`, {
+        headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0' }
+      });
+    }
+
     if (fallbackResp.ok) {
       const fbJson = await fallbackResp.json();
       const nombres = (fbJson.nombres || fbJson.nombre || '').trim();
-      const apPaterno = (fbJson.apellidoPaterno || '').trim();
-      const apMaterno = (fbJson.apellidoMaterno || '').trim();
-      const nombreCompleto = fbJson.nombre || `${nombres} ${apPaterno} ${apMaterno}`.trim();
+      const apPaterno = (fbJson.apellidoPaterno || fbJson.apellido_paterno || '').trim();
+      const apMaterno = (fbJson.apellidoMaterno || fbJson.apellido_materno || '').trim();
+      const nombreCompleto = fbJson.nombreCompleto || fbJson.nombre || `${nombres} ${apPaterno} ${apMaterno}`.trim();
 
       if (nombreCompleto) {
         return res.status(200).json({
@@ -155,6 +164,9 @@ export default async function handler(req, res) {
             nombres: nombres,
             apellido_paterno: apPaterno,
             apellido_materno: apMaterno,
+            departamento: fbJson.departamento || 'LIMA',
+            provincia: fbJson.provincia || 'LIMA',
+            distrito: fbJson.distrito || null,
             raw_payload: fbJson
           },
           source: 'onpe_identity_bridge',
