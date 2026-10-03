@@ -1,4 +1,4 @@
-import chromium from '@sparticuz/chromium-min';
+import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
 
 export const config = {
@@ -47,12 +47,9 @@ export default async function handler(req, res) {
 
   let debugError = null;
 
-  // 2. Consulta ONPE con Puppeteer
+  // 2. Consulta ONPE con Puppeteer en Vercel
   try {
-    chromium.setGraphicsMode = false;
-    const executablePath = await chromium.executablePath(
-      'https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar'
-    );
+    const executablePath = await chromium.executablePath();
 
     const browser = await puppeteer.launch({
       args: [
@@ -64,9 +61,9 @@ export default async function handler(req, res) {
         '--disable-gpu',
         '--lang=es-PE,es'
       ],
-      defaultViewport: { width: 1280, height: 720 },
+      defaultViewport: chromium.defaultViewport || { width: 1280, height: 720 },
       executablePath: executablePath,
-      headless: true,
+      headless: chromium.headless ?? true,
     });
 
     try {
