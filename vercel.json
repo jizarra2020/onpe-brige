@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "functions": {
+    "api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/onpe/(?<dni>[^/]+)$",
+      "dest": "/api/onpe/[dni].js?dni=$dni"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
+    }
+  ]
+}
